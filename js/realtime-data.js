@@ -43,6 +43,16 @@
       const cacPayback = data.arppu > 0 ? data.cac / data.arppu : 0;
 
       // KPI value mappings for data-kpi attributes
+      // Calculate cost metrics
+      const adSpend = data.adSpend || 0;
+      const aiCost = data.aiCost || 0;
+      const serverCost = 3000000; // 고정 비용 (서버/인프라)
+      const salaryCost = 7000000; // 고정 비용 (인건비)
+      const otherCost = 2000000;  // 고정 비용 (기타)
+      const totalOpCost = adSpend + aiCost + serverCost + salaryCost + otherCost;
+      const netProfit = data.revenue - totalOpCost;
+      const grossProfit = data.revenue - aiCost;
+
       const kpiFormats = {
         mau: formatMan(data.mau),
         mrr: formatEok(data.revenue) + '원',
@@ -68,7 +78,24 @@
         d7Retention: '측정필요',
         d30Retention: '측정필요',
         nrr: '측정필요',
-        activationRate: '측정필요'
+        activationRate: '측정필요',
+        // Finance cost metrics (실시간 연동)
+        adSpendMan: formatManWonUnit(adSpend),
+        adSpendPercent: totalOpCost > 0 ? Math.round(adSpend / totalOpCost * 100) + '%' : '0%',
+        aiCostMan: formatManWonUnit(aiCost),
+        aiCostWon: formatWon(aiCost),
+        aiCostPercent: totalOpCost > 0 ? Math.round(aiCost / totalOpCost * 100) + '%' : '0%',
+        aiCostRatio: data.revenue > 0 ? (aiCost / data.revenue * 100).toFixed(1) + '%' : '0%',
+        serverCostMan: formatManWonUnit(serverCost),
+        serverCostPercent: totalOpCost > 0 ? Math.round(serverCost / totalOpCost * 100) + '%' : '0%',
+        salaryPercent: totalOpCost > 0 ? Math.round(salaryCost / totalOpCost * 100) + '%' : '0%',
+        otherPercent: totalOpCost > 0 ? Math.round(otherCost / totalOpCost * 100) + '%' : '0%',
+        totalOpCostMan: formatManWonUnit(totalOpCost),
+        netProfitMan: (netProfit >= 0 ? '+' : '') + formatManWonUnit(netProfit),
+        profitStatus: netProfit >= 0 ? '흑자 전환 완료' : '적자 상태',
+        revenueWon: formatWon(data.revenue),
+        grossProfitWon: formatWon(grossProfit),
+        costPerQuery: data.payingUsers > 0 ? Math.round(aiCost / data.payingUsers) + '원' : '-'
       };
 
       // Update all elements with data-kpi attribute
